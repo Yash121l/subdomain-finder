@@ -14,7 +14,7 @@ export function Footer() {
           </span>
           <a 
             className="flex items-center gap-1 hover:text-[var(--color-text)] transition-colors" 
-            href="https://github.com" 
+            href="https://github.com/Yash121l/subdomain-finder" 
             target="_blank" 
             rel="noreferrer"
           >

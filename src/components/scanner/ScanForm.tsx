@@ -65,8 +65,8 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Domain Input */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
-          <Globe className="h-4 w-4 text-indigo-400" />
+        <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text)]">
+          <Globe className="h-4 w-4 text-blue-500" />
           Target Domain
         </label>
         <Input
@@ -76,14 +76,14 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
           className="text-lg"
         />
         {errors.domain && (
-          <p className="text-xs text-rose-400">{errors.domain.message}</p>
+          <p className="text-xs text-red-500">{errors.domain.message}</p>
         )}
       </div>
 
       {/* Source Selection */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-200">
-          <Search className="h-4 w-4 text-purple-400" />
+        <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text)]">
+          <Search className="h-4 w-4 text-purple-500" />
           OSINT Sources
         </label>
         <Select {...register("sources.0")} disabled={isRunning}>
@@ -93,16 +93,16 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
             </option>
           ))}
         </Select>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[var(--color-text-muted)]">
           Uses Certificate Transparency logs and DNS search APIs
         </p>
       </div>
 
       {/* DNS Resolution Toggle */}
-      <div className="flex items-center justify-between rounded-lg bg-slate-900/40 p-3">
+      <div className="flex items-center justify-between rounded-lg bg-[var(--color-bg-tertiary)] p-3">
         <div>
-          <p className="text-sm font-medium text-slate-200">DNS Resolution</p>
-          <p className="text-xs text-slate-500">Resolve IP addresses for discovered subdomains</p>
+          <p className="text-sm font-medium text-[var(--color-text)]">DNS Resolution</p>
+          <p className="text-xs text-[var(--color-text-muted)]">Resolve IP addresses for discovered subdomains</p>
         </div>
         <Switch
           checked={resolveDns}
@@ -113,12 +113,12 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
 
       {/* Concurrency Slider */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-sm text-slate-200">
+        <div className="flex items-center justify-between text-sm text-[var(--color-text)]">
           <span className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-amber-400" />
+            <Zap className="h-4 w-4 text-amber-500" />
             Concurrency
           </span>
-          <span className="rounded-full bg-indigo-500/20 px-2.5 py-0.5 text-xs font-medium text-indigo-300">
+          <span className="rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">
             {concurrency}
           </span>
         </div>
@@ -129,7 +129,7 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
           onChange={(event) => setValue("concurrency", Number(event.target.value))}
           disabled={isRunning}
         />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[var(--color-text-muted)]">
           Higher values = faster scanning, but may hit rate limits
         </p>
       </div>

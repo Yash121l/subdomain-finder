@@ -5,15 +5,14 @@ type BadgeProps = {
   variant?: "default" | "success" | "warning" | "error" | "info";
   size?: "sm" | "md";
   className?: string;
-  glow?: boolean;
 };
 
 const variants = {
-  default: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-  success: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  warning: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  error: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  info: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  default: "bg-gray-500/15 text-gray-600 dark:text-gray-400 border-gray-500/20",
+  success: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/20",
+  warning: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  error: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/20",
+  info: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/20",
 };
 
 const sizes = {
@@ -26,7 +25,6 @@ export function Badge({
   variant = "default",
   size = "md",
   className,
-  glow = false,
 }: BadgeProps) {
   return (
     <span
@@ -34,8 +32,6 @@ export function Badge({
         "inline-flex items-center rounded-full border font-medium",
         variants[variant],
         sizes[size],
-        glow && variant === "success" && "shadow-sm shadow-emerald-500/30",
-        glow && variant === "error" && "shadow-sm shadow-rose-500/30",
         className
       )}
     >

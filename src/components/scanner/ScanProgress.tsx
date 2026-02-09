@@ -12,9 +12,9 @@ export function ScanProgress() {
   if (status === "idle") {
     return (
       <Card className="text-center py-8" hover={false}>
-        <Globe className="mx-auto h-12 w-12 text-slate-600 mb-3" />
-        <p className="text-slate-400">Enter a domain and start scanning</p>
-        <p className="text-xs text-slate-600 mt-1">
+        <Globe className="mx-auto h-12 w-12 text-[var(--color-text-muted)] mb-3" />
+        <p className="text-[var(--color-text-secondary)]">Enter a domain and start scanning</p>
+        <p className="text-xs text-[var(--color-text-muted)] mt-1">
           Searches Certificate Transparency logs and DNS records
         </p>
       </Card>
@@ -26,11 +26,11 @@ export function ScanProgress() {
     : 0;
 
   const statusColors = {
-    running: "text-indigo-400",
-    paused: "text-amber-400",
-    completed: "text-emerald-400",
-    failed: "text-rose-400",
-    idle: "text-slate-400",
+    running: "text-blue-500",
+    paused: "text-amber-500",
+    completed: "text-green-500",
+    failed: "text-red-500",
+    idle: "text-[var(--color-text-muted)]",
   };
 
   return (
@@ -40,9 +40,9 @@ export function ScanProgress() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className={`h-5 w-5 ${statusColors[status]} ${status === "running" ? "animate-pulse" : ""}`} />
-            <span className="font-semibold text-slate-200 capitalize">{status}</span>
+            <span className="font-semibold text-[var(--color-text)] capitalize">{status}</span>
           </div>
-          <div className="flex items-center gap-1 text-sm text-slate-400">
+          <div className="flex items-center gap-1 text-sm text-[var(--color-text-secondary)]">
             <Clock className="h-4 w-4" />
             <span>{formatDuration(elapsed)}</span>
           </div>
@@ -52,27 +52,27 @@ export function ScanProgress() {
         <Progress value={progress.percent} />
 
         {/* Status Message */}
-        <p className="text-sm text-slate-400 line-clamp-1">
+        <p className="text-sm text-[var(--color-text-secondary)] line-clamp-1">
           {progress.message}
         </p>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-slate-900/50 p-3">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+          <div className="rounded-lg bg-[var(--color-bg-tertiary)] p-3">
+            <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-1">
               <Database className="h-3.5 w-3.5" />
               Discovered
             </div>
-            <p className="text-2xl font-bold text-gradient">
+            <p className="text-2xl font-bold text-[var(--color-text)]">
               {results.length}
             </p>
           </div>
-          <div className="rounded-lg bg-slate-900/50 p-3">
-            <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+          <div className="rounded-lg bg-[var(--color-bg-tertiary)] p-3">
+            <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-1">
               <Globe className="h-3.5 w-3.5" />
               Resolved
             </div>
-            <p className="text-2xl font-bold text-emerald-400">
+            <p className="text-2xl font-bold text-green-500">
               {progress.resolved}
             </p>
           </div>

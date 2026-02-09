@@ -12,18 +12,19 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           className={cn(
             "w-full appearance-none rounded-lg px-4 py-2.5 pr-10",
-            "bg-slate-900/60 text-slate-100",
-            "border border-slate-700/50",
+            "bg-[var(--color-bg-tertiary)] text-[var(--color-text)]",
+            "border border-[var(--color-border)]",
             "transition-all duration-200",
-            "hover:border-slate-600/50",
-            "focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20",
+            "hover:border-[var(--color-border-light)]",
+            "focus:border-[var(--color-text-secondary)] focus:ring-2 focus:ring-[var(--color-text-secondary)]/20",
+            "focus:outline-none",
             className
           )}
           {...props}
         >
           {children}
         </select>
-        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-muted)]" />
       </div>
     );
   }

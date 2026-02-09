@@ -35,9 +35,9 @@ export function ResultsTable() {
   if (results.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <Globe className="h-16 w-16 text-slate-700 mb-4" />
-        <p className="text-slate-400 text-lg">No subdomains discovered yet</p>
-        <p className="text-slate-600 text-sm mt-1">Start a scan to find subdomains</p>
+        <Globe className="h-16 w-16 text-[var(--color-text-muted)] mb-4" />
+        <p className="text-[var(--color-text-secondary)] text-lg">No subdomains discovered yet</p>
+        <p className="text-[var(--color-text-muted)] text-sm mt-1">Start a scan to find subdomains</p>
       </div>
     );
   }
@@ -48,13 +48,13 @@ export function ResultsTable() {
       
       {filteredResults.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <SearchX className="h-12 w-12 text-slate-700 mb-3" />
-          <p className="text-slate-400">No results match your filters</p>
+          <SearchX className="h-12 w-12 text-[var(--color-text-muted)] mb-3" />
+          <p className="text-[var(--color-text-secondary)]">No results match your filters</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-800/50">
+        <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
           <Table>
-            <thead className="bg-slate-900/60 text-xs uppercase text-slate-500">
+            <thead className="bg-[var(--color-bg-tertiary)] text-xs uppercase text-[var(--color-text-muted)]">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Subdomain</th>
                 <th className="px-4 py-3 text-left font-medium">IP Address</th>
@@ -71,7 +71,7 @@ export function ResultsTable() {
         </div>
       )}
       
-      <p className="text-xs text-slate-600 text-right">
+      <p className="text-xs text-[var(--color-text-muted)] text-right">
         Showing {filteredResults.length} of {results.length} results
       </p>
     </div>

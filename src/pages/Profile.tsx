@@ -5,7 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { useAuth } from "../context/AuthContext";
 import { apiClient } from "../lib/api";
-import { User, Mail, Building, Calendar, Shield, LogOut, Save } from "lucide-react";
+import { User, Mail, Building, Calendar, Shield, LogOut } from "lucide-react";
 
 export function Profile() {
   const navigate = useNavigate();
@@ -62,40 +62,40 @@ export function Profile() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text)]">Profile</h1>
-          <p className="text-[var(--color-text-secondary)]">Manage your account settings</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-text)]">Profile</h1>
+          <p className="text-sm sm:text-base text-[var(--color-text-secondary)]">Manage your account settings</p>
         </div>
-        <Button variant="danger" onClick={handleLogout}>
+        <Button variant="danger" onClick={handleLogout} className="w-full sm:w-auto">
           <LogOut className="h-4 w-4" />
           Sign Out
         </Button>
       </div>
 
       {/* Profile Card */}
-      <Card hover={false}>
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-bg)]">
-            <span className="text-2xl font-bold">
+      <Card hover={false} className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-8 text-center sm:text-left">
+          <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-bg)] shrink-0">
+            <span className="text-xl sm:text-2xl font-bold">
               {profile?.name?.charAt(0).toUpperCase() || profile?.email?.charAt(0).toUpperCase() || "U"}
             </span>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-[var(--color-text)]">
+            <h2 className="text-lg sm:text-xl font-semibold text-[var(--color-text)]">
               {profile?.name || "User"}
             </h2>
-            <p className="text-[var(--color-text-secondary)]">{profile?.email}</p>
+            <p className="text-sm sm:text-base text-[var(--color-text-secondary)] break-all">{profile?.email}</p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Name */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-              <User className="h-4 w-4" />
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text)]">
+              <User className="h-4 w-4 text-[var(--color-text-muted)]" />
               Full Name
             </label>
             <Input value={profile?.name || ""} disabled placeholder="Not set" />
@@ -103,8 +103,8 @@ export function Profile() {
 
           {/* Email */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-              <Mail className="h-4 w-4" />
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text)]">
+              <Mail className="h-4 w-4 text-[var(--color-text-muted)]" />
               Email Address
             </label>
             <Input value={profile?.email || ""} disabled />
@@ -112,15 +112,15 @@ export function Profile() {
 
           {/* Organization */}
           <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text-secondary)]">
-              <Building className="h-4 w-4" />
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--color-text)]">
+              <Building className="h-4 w-4 text-[var(--color-text-muted)]" />
               Organization
             </label>
             <Input value={profile?.organization || ""} disabled placeholder="Not set" />
           </div>
 
           {/* Member Since */}
-          <div className="flex items-center justify-between pt-4 border-t border-[var(--color-border)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-4 border-t border-[var(--color-border)]">
             <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
               <Calendar className="h-4 w-4" />
               <span className="text-sm">Member since</span>
@@ -131,7 +131,7 @@ export function Profile() {
       </Card>
 
       {/* Security Section */}
-      <Card hover={false}>
+      <Card hover={false} className="p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="h-5 w-5 text-[var(--color-text-secondary)]" />
           <h3 className="font-semibold text-[var(--color-text)]">Security</h3>
@@ -139,7 +139,7 @@ export function Profile() {
         <p className="text-sm text-[var(--color-text-muted)] mb-4">
           Your account is secured with a password. We recommend using a strong, unique password.
         </p>
-        <Button variant="outline" disabled>
+        <Button variant="outline" disabled className="w-full sm:w-auto">
           Change Password (Coming Soon)
         </Button>
       </Card>

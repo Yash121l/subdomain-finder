@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://subdomainfinder.yashlunawat.com/sitemap.xml
+
+# Disallow authenticated routes
+Disallow: /profile
+Disallow: /settings

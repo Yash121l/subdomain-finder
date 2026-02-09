@@ -1,101 +1,96 @@
 import { Card } from "../ui/card";
-import { Badge } from "../ui/badge";
 import { useScanStore } from "../../store/scanStore";
-import { Activity, Database, Globe, Zap } from "lucide-react";
+import { Activity, Database, CheckCircle, Globe, Zap, BarChart } from "lucide-react";
+
+const osintSources = [
+  { name: "crt.sh", desc: "Certificate Transparency" },
+  { name: "HackerTarget", desc: "DNS Search" },
+];
+
+const tips = [
+  "Certificate Transparency logs are a goldmine for finding subdomains. They contain all SSL certificates ever issued for a domain.",
+  "DNS brute-forcing can find subdomains not in CT logs, but may trigger rate limits.",
+  "Wildcard certificates (*.domain.com) indicate the domain uses subdomain-based services.",
+  "Check for development subdomains like dev., staging., test. for potential misconfigurations.",
+];
 
 export function Sidebar() {
   const status = useScanStore((state) => state.status);
   const results = useScanStore((state) => state.results);
   const progress = useScanStore((state) => state.progress);
+  
+  const randomTip = tips[Math.floor(Math.random() * tips.length)];
 
-  const statusBadge = {
-    idle: { variant: "default" as const, label: "Idle" },
-    running: { variant: "success" as const, label: "Running" },
-    paused: { variant: "warning" as const, label: "Paused" },
-    completed: { variant: "info" as const, label: "Complete" },
-    failed: { variant: "error" as const, label: "Failed" },
+  const statusColors = {
+    idle: "text-[var(--color-text-muted)]",
+    running: "text-blue-500",
+    paused: "text-amber-500",
+    completed: "text-green-500",
+    failed: "text-red-500",
   };
 
-  const uniqueSources = [...new Set(results.map((r) => r.source))];
-  const resolvedCount = results.filter((r) => r.resolved).length;
-
   return (
-    <aside className="hidden w-72 flex-col gap-4 xl:flex">
-      {/* Status Card */}
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Activity className={`h-4 w-4 ${status === "running" ? "text-emerald-400 animate-pulse" : "text-slate-500"}`} />
-          <span className="text-xs uppercase tracking-widest text-slate-500 font-medium">Status</span>
+    <aside className="space-y-4">
+      {/* Status */}
+      <Card hover={false} className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-medium">
+            <Activity className="h-4 w-4" />
+            Status
+          </h3>
+          <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${statusColors[status]} bg-[var(--color-bg-tertiary)]`}>
+            {status}
+          </span>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-300">Current scan</span>
-          <Badge variant={statusBadge[status].variant} glow={status === "running"}>
-            {statusBadge[status].label}
-          </Badge>
-        </div>
+        <p className="text-xs text-[var(--color-text-secondary)]">Current scan</p>
       </Card>
 
-      {/* Stats Card */}
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Database className="h-4 w-4 text-indigo-400" />
-          <span className="text-xs uppercase tracking-widest text-slate-500 font-medium">Statistics</span>
-        </div>
+      {/* Statistics */}
+      <Card hover={false} className="p-4">
+        <h3 className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-medium mb-3">
+          <BarChart className="h-4 w-4" />
+          Statistics
+        </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Discovered</span>
-            <span className="text-lg font-bold text-gradient">{results.length}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-[var(--color-text-secondary)]">Discovered</span>
+            <span className="text-sm font-semibold text-[var(--color-text)]">{results.length}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Resolved</span>
-            <span className="text-lg font-semibold text-emerald-400">{resolvedCount}</span>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-[var(--color-text-secondary)]">Resolved</span>
+            <span className="text-sm font-semibold text-green-500">{progress.resolved}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Progress</span>
-            <span className="text-sm font-medium text-slate-300">{progress.percent}%</span>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-[var(--color-text-secondary)]">Progress</span>
+            <span className="text-sm font-semibold text-[var(--color-text)]">{progress.percent}%</span>
           </div>
         </div>
       </Card>
 
-      {/* Sources Card */}
-      <Card>
-        <div className="flex items-center gap-2 mb-4">
-          <Globe className="h-4 w-4 text-purple-400" />
-          <span className="text-xs uppercase tracking-widest text-slate-500 font-medium">OSINT Sources</span>
-        </div>
+      {/* OSINT Sources */}
+      <Card hover={false} className="p-4">
+        <h3 className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-medium mb-3">
+          <Globe className="h-4 w-4" />
+          OSINT Sources
+        </h3>
         <div className="space-y-2">
-          <div className="flex items-center justify-between rounded-lg bg-slate-900/50 p-2">
-            <span className="text-xs text-slate-400">crt.sh</span>
-            <span className="text-xs text-slate-500">Certificate Transparency</span>
-          </div>
-          <div className="flex items-center justify-between rounded-lg bg-slate-900/50 p-2">
-            <span className="text-xs text-slate-400">HackerTarget</span>
-            <span className="text-xs text-slate-500">DNS Search</span>
-          </div>
-        </div>
-        {uniqueSources.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-slate-800/50">
-            <p className="text-xs text-slate-500 mb-2">Active sources:</p>
-            <div className="flex flex-wrap gap-1">
-              {uniqueSources.map((source) => (
-                <Badge key={source} size="sm" variant="info">
-                  {source === "crtsh" ? "CT" : source === "hackertarget" ? "DNS" : source}
-                </Badge>
-              ))}
+          {osintSources.map((source) => (
+            <div key={source.name} className="flex justify-between items-center text-sm">
+              <span className="text-[var(--color-text)]">{source.name}</span>
+              <span className="text-xs text-[var(--color-text-muted)]">{source.desc}</span>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </Card>
 
-      {/* Tips Card */}
-      <Card className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
-        <div className="flex items-center gap-2 mb-3">
-          <Zap className="h-4 w-4 text-amber-400" />
-          <span className="text-xs uppercase tracking-widest text-slate-500 font-medium">Pro Tip</span>
-        </div>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          Certificate Transparency logs are a goldmine for finding subdomains. 
-          They contain all SSL certificates ever issued for a domain.
+      {/* Pro Tip */}
+      <Card hover={false} className="p-4 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
+        <h3 className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-medium mb-2">
+          <Zap className="h-4 w-4 text-amber-500" />
+          Pro Tip
+        </h3>
+        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+          {randomTip}
         </p>
       </Card>
     </aside>

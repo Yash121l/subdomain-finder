@@ -1,11 +1,75 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Subdomain Finder</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Subdomain Finder - Free OSINT Subdomain Discovery Tool</title>
+    <meta name="description" content="Discover subdomains instantly with our free OSINT-powered tool. Enumerate subdomains using crt.sh and HackerTarget, verify DNS records, and export results in JSON, CSV, or TXT." />
+    <meta name="keywords" content="subdomain finder, subdomain enumeration, OSINT, security testing, dns lookup, crt.sh, hackertarget, bug bounty, penetration testing" />
+    <meta name="author" content="Yash Lunawat" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://subdomainfinder.yashlunawat.com/" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://subdomainfinder.yashlunawat.com/" />
+    <meta property="og:title" content="Subdomain Finder - Free OSINT Subdomain Discovery" />
+    <meta property="og:description" content="Discover subdomains instantly with our free OSINT-powered tool. Find hidden assets and verify DNS records." />
+    <meta property="og:image" content="https://subdomainfinder.yashlunawat.com/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://subdomainfinder.yashlunawat.com/" />
+    <meta name="twitter:title" content="Subdomain Finder - Free OSINT Subdomain Discovery" />
+    <meta name="twitter:description" content="Discover subdomains instantly with our free OSINT-powered tool. Find hidden assets and verify DNS records." />
+    <meta name="twitter:image" content="https://subdomainfinder.yashlunawat.com/og-image.png" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Subdomain Finder",
+      "description": "Free OSINT-powered subdomain discovery tool",
+      "url": "https://subdomainfinder.yashlunawat.com",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Web Browser",
+      "author": {
+        "@type": "Person",
+        "name": "Yash Lunawat"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Subdomain enumeration via crt.sh",
+        "HackerTarget DNS search",
+        "DNS-over-HTTPS resolution",
+        "Export to JSON, CSV, TXT"
+      ]
+    }
+    </script>
+    
+    <!-- Microsoft Clarity Analytics -->
+    <script type="text/javascript">
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "veno5hs80j");
+    </script>
   </head>
-  <body class="bg-slate-950 text-slate-100">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

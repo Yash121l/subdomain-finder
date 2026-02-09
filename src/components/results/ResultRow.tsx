@@ -35,35 +35,35 @@ export function ResultRow({ result }: { result: ScanResult }) {
   };
 
   return (
-    <tr className="result-row border-t border-slate-800/50 hover:bg-slate-800/30 transition-colors">
+    <tr className="border-t border-[var(--color-border)] hover:bg-[var(--color-bg-tertiary)] transition-colors">
       {/* Subdomain */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <Globe className="h-4 w-4 text-indigo-400 flex-shrink-0" />
+          <Globe className="h-4 w-4 text-blue-500 flex-shrink-0" />
           <a
             href={`https://${result.subdomain}`}
             target="_blank"
             rel="noreferrer"
-            className="text-sm font-medium text-slate-200 hover:text-indigo-300 transition-colors truncate max-w-[200px]"
+            className="text-sm font-medium text-[var(--color-text)] hover:text-blue-500 transition-colors truncate max-w-[200px]"
             title={result.subdomain}
           >
             {result.subdomain}
           </a>
           <button
             onClick={copyToClipboard}
-            className="p-1 rounded hover:bg-slate-700/50 transition-colors"
+            className="p-1 rounded hover:bg-[var(--color-border)] transition-colors"
             title="Copy subdomain"
           >
-            <Copy className={`h-3 w-3 ${copied ? "text-emerald-400" : "text-slate-500"}`} />
+            <Copy className={`h-3 w-3 ${copied ? "text-green-500" : "text-[var(--color-text-muted)]"}`} />
           </button>
           <a
             href={`https://${result.subdomain}`}
             target="_blank"
             rel="noreferrer"
-            className="p-1 rounded hover:bg-slate-700/50 transition-colors"
+            className="p-1 rounded hover:bg-[var(--color-border)] transition-colors"
             title="Open in new tab"
           >
-            <ExternalLink className="h-3 w-3 text-slate-500" />
+            <ExternalLink className="h-3 w-3 text-[var(--color-text-muted)]" />
           </a>
         </div>
       </td>
@@ -71,8 +71,8 @@ export function ResultRow({ result }: { result: ScanResult }) {
       {/* IP Addresses */}
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <Server className="h-4 w-4 text-slate-500 flex-shrink-0" />
-          <span className="text-xs text-slate-400 truncate max-w-[120px]">
+          <Server className="h-4 w-4 text-[var(--color-text-muted)] flex-shrink-0" />
+          <span className="text-xs text-[var(--color-text-secondary)] truncate max-w-[120px]">
             {result.ipAddresses.length > 0
               ? result.ipAddresses.slice(0, 2).join(", ")
               : "—"}
@@ -93,7 +93,6 @@ export function ResultRow({ result }: { result: ScanResult }) {
         <Badge
           variant={result.resolved ? "success" : "default"}
           size="sm"
-          glow={result.resolved}
         >
           {result.resolved ? "Resolved" : "Pending"}
         </Badge>

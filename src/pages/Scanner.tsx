@@ -36,18 +36,18 @@ export function Scanner() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Top Section - Form + Progress */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_1.2fr]">
         {/* Scan Form Card */}
-        <Card>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10">
-              <Radar className="h-5 w-5 text-indigo-400" />
+        <Card className="p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-500/10">
+              <Radar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">New Scan</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">New Scan</h2>
+              <p className="text-xs text-[var(--color-text-muted)] hidden sm:block">
                 Discover subdomains using OSINT sources
               </p>
             </div>
@@ -56,13 +56,13 @@ export function Scanner() {
         </Card>
 
         {/* Progress & Controls */}
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           <ScanProgress />
-          <Card hover={false}>
-            <div className="flex items-center justify-between">
+          <Card hover={false} className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-slate-200">Controls</h3>
-                <p className="text-xs text-slate-500">Pause or stop the active scan</p>
+                <h3 className="text-sm font-semibold text-[var(--color-text)]">Controls</h3>
+                <p className="text-xs text-[var(--color-text-muted)]">Pause or stop the active scan</p>
               </div>
               <ScanControls />
             </div>
@@ -71,15 +71,15 @@ export function Scanner() {
       </div>
 
       {/* Results Section */}
-      <Card className="space-y-4" hover={false}>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <Card className="space-y-4 p-4 sm:p-6" hover={false}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
-              <Download className="h-5 w-5 text-emerald-400" />
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-green-500/10">
+              <Download className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Results</h3>
-              <p className="text-xs text-slate-500">Discovered subdomains and DNS data</p>
+              <h3 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">Results</h3>
+              <p className="text-xs text-[var(--color-text-muted)]">Discovered subdomains and DNS data</p>
             </div>
           </div>
           <ExportButtons />
