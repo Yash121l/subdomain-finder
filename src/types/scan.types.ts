@@ -4,16 +4,19 @@ export type ScanResult = {
   id: string;
   subdomain: string;
   ipAddresses: string[];
-  statusCode: number;
-  responseTime: number;
+  statusCode: number | null;
+  responseTime: number | null;
   https: boolean;
-  technologies: string[];
-  active: boolean;
+  source: string;
+  resolved: boolean;
+  discoveredAt: number;
 };
 
 export type ScanProgress = {
   percent: number;
   found: number;
-  speed: number;
-  eta: number;
+  resolved: number;
+  currentSource: string;
+  message: string;
+  startedAt: number | null;
 };

@@ -1,16 +1,23 @@
-import * as React from "react";
 import { cn } from "../../lib/utils";
+import type { ReactNode } from "react";
 
-type CardProps = React.HTMLAttributes<HTMLDivElement>;
+type CardProps = {
+  children: ReactNode;
+  className?: string;
+  hover?: boolean;
+};
 
-export function Card({ className, ...props }: CardProps) {
+export function Card({ children, className, hover = true }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-800 bg-slate-950/60 p-6 shadow-lg shadow-slate-950/30",
+        "glass gradient-border rounded-xl p-6",
+        "animate-fade-in",
+        hover && "hover-lift",
         className
       )}
-      {...props}
-    />
+    >
+      {children}
+    </div>
   );
 }

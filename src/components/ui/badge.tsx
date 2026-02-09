@@ -1,28 +1,45 @@
-import * as React from "react";
 import { cn } from "../../lib/utils";
 
-type BadgeVariant = "success" | "warning" | "danger" | "neutral";
-
-type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
-  variant?: BadgeVariant;
+type BadgeProps = {
+  children: React.ReactNode;
+  variant?: "default" | "success" | "warning" | "error" | "info";
+  size?: "sm" | "md";
+  className?: string;
+  glow?: boolean;
 };
 
-const variantStyles: Record<BadgeVariant, string> = {
-  success: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
-  warning: "bg-amber-500/10 text-amber-300 border-amber-500/30",
-  danger: "bg-rose-500/10 text-rose-300 border-rose-500/30",
-  neutral: "bg-slate-500/10 text-slate-300 border-slate-500/30"
+const variants = {
+  default: "bg-slate-500/20 text-slate-300 border-slate-500/30",
+  success: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  warning: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  error: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  info: "bg-blue-500/20 text-blue-300 border-blue-500/30",
 };
 
-export function Badge({ className, variant = "neutral", ...props }: BadgeProps) {
+const sizes = {
+  sm: "px-2 py-0.5 text-[10px]",
+  md: "px-2.5 py-1 text-xs",
+};
+
+export function Badge({
+  children,
+  variant = "default",
+  size = "md",
+  className,
+  glow = false,
+}: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold",
-        variantStyles[variant],
+        "inline-flex items-center rounded-full border font-medium",
+        variants[variant],
+        sizes[size],
+        glow && variant === "success" && "shadow-sm shadow-emerald-500/30",
+        glow && variant === "error" && "shadow-sm shadow-rose-500/30",
         className
       )}
-      {...props}
-    />
+    >
+      {children}
+    </span>
   );
 }

@@ -1,18 +1,41 @@
-import * as React from "react";
 import { cn } from "../../lib/utils";
 
 type ProgressProps = {
   value: number;
+  max?: number;
   className?: string;
+  variant?: "default" | "gradient";
+  showLabel?: boolean;
 };
 
-export function Progress({ value, className }: ProgressProps) {
+export function Progress({
+  value,
+  max = 100,
+  className,
+  variant = "gradient",
+  showLabel = false,
+}: ProgressProps) {
+  const percent = Math.min(Math.max((value / max) * 100, 0), 100);
+
   return (
-    <div className={cn("h-2 w-full rounded-full bg-slate-800", className)}>
-      <div
-        className="h-2 rounded-full bg-gradient-to-r from-primary-400 via-primary-500 to-primary-600 transition-all"
-        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-      />
+    <div className={cn("relative", className)}>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800/60">
+        <div
+          className={cn(
+            "h-full transition-all duration-500 ease-out",
+            variant === "gradient"
+              ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500"
+              : "bg-indigo-500",
+            percent > 0 && "animate-pulse-glow"
+          )}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      {showLabel && (
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+          {Math.round(percent)}%
+        </span>
+      )}
     </div>
   );
 }
