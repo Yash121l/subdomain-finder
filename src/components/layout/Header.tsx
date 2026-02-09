@@ -1,8 +1,9 @@
-import { Moon, Sun, Github } from "lucide-react";
+import { Moon, Sun, Github, User, LogOut, LogIn } from "lucide-react";
 import { Button } from "../ui/button";
 import { useSettingsStore } from "../../store/settingsStore";
+import { useAuth } from "../../context/AuthContext";
 
-const navItems = ["Scanner", "Dashboard", "History", "Wordlists", "Settings"];
+const navItems = ["Scanner", "Dashboard", "History"];
 
 type HeaderProps = {
   active: string;
@@ -12,68 +13,85 @@ type HeaderProps = {
 export function Header({ active, onNavigate }: HeaderProps) {
   const theme = useSettingsStore((state) => state.theme);
   const setTheme = useSettingsStore((state) => state.setTheme);
+  const { user, isAuthenticated, logout } = useAuth();
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
-    <header className="sticky top-0 z-20 glass-heavy border-b border-slate-800/50">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <header className="sticky top-0 z-20 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-lg">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 h-16">
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 shadow-lg shadow-indigo-500/30">
-            <span className="text-lg font-bold text-white">SF</span>
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 opacity-50 blur-lg" />
+        <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate("Scanner")}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent)] text-[var(--color-bg)]">
+            <span className="text-sm font-bold">SF</span>
           </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-500 font-medium">
-              Subdomain
-            </p>
-            <p className="text-lg font-bold text-gradient">
-              Finder
-            </p>
-          </div>
+          <span className="font-semibold text-[var(--color-text)]">
+            Subdomain Finder
+          </span>
         </div>
 
         {/* Navigation */}
         <nav className="hidden gap-1 lg:flex">
           {navItems.map((item) => (
-            <Button
+            <button
               key={item}
-              variant={active === item ? "primary" : "ghost"}
-              size="sm"
               onClick={() => onNavigate(item)}
-              className={active === item 
-                ? "shadow-md shadow-indigo-500/20" 
-                : "hover:text-slate-200"
-              }
+              className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                active === item 
+                  ? "text-[var(--color-text)] bg-[var(--color-bg-tertiary)]" 
+                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+              }`}
             >
               {item}
-            </Button>
+            </button>
           ))}
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={toggleTheme} 
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => onNavigate("Profile")}
+                className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
+              >
+                <User className="h-4 w-4" />
+                <span className="max-w-[100px] truncate">{user?.email?.split("@")[0]}</span>
+              </button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={logout}
+              >
+                <LogOut size={16} />
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="primary" 
+              size="sm" 
+              onClick={() => onNavigate("Login")}
+            >
+              <LogIn size={16} />
+              Sign In
+            </Button>
+          )}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
             aria-label="Toggle theme"
-            className="h-9 w-9 p-0"
           >
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-          </Button>
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
           <a
             href="https://github.com"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex"
+            className="p-2 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-tertiary)] transition-colors"
           >
-            <Button variant="outline" size="sm" className="h-9 w-9 p-0">
-              <Github size={16} />
-            </Button>
+            <Github size={18} />
           </a>
         </div>
       </div>

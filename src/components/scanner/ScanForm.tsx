@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../ui/button";
@@ -10,7 +11,12 @@ import { SOURCE_OPTIONS } from "../../lib/constants";
 import { useScanStore } from "../../store/scanStore";
 import { Globe, Search, Zap } from "lucide-react";
 
-export function ScanForm() {
+type Props = {
+  initialDomain?: string;
+  onScanStart?: (domain: string) => void;
+};
+
+export function ScanForm({ initialDomain, onScanStart }: Props) {
   const startScan = useScanStore((state) => state.startScan);
   const status = useScanStore((state) => state.status);
   const isRunning = status === "running";
@@ -24,7 +30,7 @@ export function ScanForm() {
   } = useForm<ScanFormValues>({
     resolver: zodResolver(scanSchema),
     defaultValues: {
-      domain: "",
+      domain: initialDomain || "",
       sources: ["all"],
       resolveDns: true,
       concurrency: 10,
@@ -32,10 +38,20 @@ export function ScanForm() {
     }
   });
 
+  // Update form when initialDomain changes (from URL)
+  useEffect(() => {
+    if (initialDomain) {
+      setValue("domain", initialDomain);
+    }
+  }, [initialDomain, setValue]);
+
   const concurrency = watch("concurrency");
   const resolveDns = watch("resolveDns");
 
   const onSubmit = (data: ScanFormValues) => {
+    // Update URL with domain
+    onScanStart?.(data.domain);
+    
     startScan({
       domain: data.domain,
       sources: data.sources,

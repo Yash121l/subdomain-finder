@@ -1,8 +1,7 @@
 import { cn } from "../../lib/utils";
-import type { ReactNode } from "react";
 
 type CardProps = {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   hover?: boolean;
 };
@@ -11,8 +10,8 @@ export function Card({ children, className, hover = true }: CardProps) {
   return (
     <div
       className={cn(
-        "glass gradient-border rounded-xl p-6",
-        "animate-fade-in",
+        "rounded-xl border p-6 transition-colors",
+        "border-[var(--color-border)] bg-[var(--color-bg-secondary)]",
         hover && "hover-lift",
         className
       )}

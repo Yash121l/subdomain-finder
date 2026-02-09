@@ -1,12 +1,40 @@
+import { useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card } from "../components/ui/card";
 import { ScanForm } from "../components/scanner/ScanForm";
 import { ScanControls } from "../components/scanner/ScanControls";
 import { ScanProgress } from "../components/scanner/ScanProgress";
 import { ResultsTable } from "../components/results/ResultsTable";
 import { ExportButtons } from "../components/results/ExportButtons";
+import { useScanStore } from "../store/scanStore";
 import { Radar, Download } from "lucide-react";
 
 export function Scanner() {
+  const { domain } = useParams<{ domain?: string }>();
+  const navigate = useNavigate();
+  const startScan = useScanStore((state) => state.startScan);
+  const status = useScanStore((state) => state.status);
+  const hasAutoStarted = useRef(false);
+
+  // Auto-start scan when domain is in URL
+  useEffect(() => {
+    if (domain && status === "idle" && !hasAutoStarted.current) {
+      hasAutoStarted.current = true;
+      startScan({
+        domain,
+        sources: ["all"],
+        resolveDns: true,
+        concurrency: 10,
+        timeout: 5,
+      });
+    }
+  }, [domain, status, startScan]);
+
+  // Update URL when scan completes (for sharing)
+  const updateUrl = (newDomain: string) => {
+    navigate(`/scan/${encodeURIComponent(newDomain)}`, { replace: true });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Section - Form + Progress */}
@@ -24,7 +52,7 @@ export function Scanner() {
               </p>
             </div>
           </div>
-          <ScanForm />
+          <ScanForm initialDomain={domain} onScanStart={updateUrl} />
         </Card>
 
         {/* Progress & Controls */}

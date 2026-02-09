@@ -1,0 +1,14 @@
+name = "subdomain-finder-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[dev]
+port = 8787
+
+[vars]
+JWT_SECRET = "WK49Y0ovjf2ydl5XQL1fa8rzakNbTswjjxGUsrxFsClRhf1RnTuFxzJGqQb7980tyl7ZAwTNS8cIB32IlmTh9I"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "subdomain-finder-db"
+database_id = "local"
