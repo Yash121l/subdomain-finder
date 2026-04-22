@@ -9,8 +9,14 @@ import { ExportButtons } from "../components/results/ExportButtons";
 import { useScanStore } from "../store/scanStore";
 import { Radar, Download } from "lucide-react";
 
+function normalizeDomain(raw: string): string {
+  const withoutProtocol = raw.trim().replace(/^https?:\/\//i, "");
+  return withoutProtocol.split("/")[0].split("?")[0].split("#")[0].toLowerCase();
+}
+
 export function Scanner() {
-  const { domain } = useParams<{ domain?: string }>();
+  const { domain: rawDomain } = useParams<{ domain?: string }>();
+  const domain = rawDomain ? normalizeDomain(decodeURIComponent(rawDomain)) : undefined;
   const navigate = useNavigate();
   const startScan = useScanStore((state) => state.startScan);
   const status = useScanStore((state) => state.status);
