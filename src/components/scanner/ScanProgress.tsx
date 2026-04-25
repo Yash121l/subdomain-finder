@@ -9,19 +9,6 @@ export function ScanProgress() {
   const status = useScanStore((state) => state.status);
   const progress = useScanStore((state) => state.progress);
   const results = useScanStore((state) => state.results);
-  
-  if (status === "idle") {
-    return (
-      <Card className="text-center py-8" hover={false}>
-        <Globe className="mx-auto h-12 w-12 text-[var(--color-text-muted)] mb-3" />
-        <p className="text-[var(--color-text-secondary)]">Enter a domain and start scanning</p>
-        <p className="text-xs text-[var(--color-text-muted)] mt-1">
-          Searches Certificate Transparency logs and DNS records
-        </p>
-      </Card>
-    );
-  }
-
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
@@ -34,6 +21,20 @@ export function ScanProgress() {
       if (interval) clearInterval(interval);
     };
   }, [status]);
+
+  if (status === "idle") {
+    return (
+      <Card className="text-center py-8" hover={false}>
+        <Globe className="mx-auto h-12 w-12 text-[var(--color-text-muted)] mb-3" />
+        <p className="text-[var(--color-text-secondary)]">Enter a domain and start scanning</p>
+        <p className="text-xs text-[var(--color-text-muted)] mt-1">
+          Searches Certificate Transparency logs and DNS records
+        </p>
+      </Card>
+    );
+  }
+
+
 
   const elapsed = progress.startedAt 
     ? Math.floor(((progress.endedAt || now) - progress.startedAt) / 1000) 
