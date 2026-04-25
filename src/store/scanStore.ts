@@ -11,6 +11,7 @@ const initialProgress: ScanProgress = {
   currentSource: "",
   message: "Ready to scan",
   startedAt: null,
+  endedAt: null,
 };
 
 type ScanConfig = {
@@ -59,6 +60,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
         ...initialProgress,
         message: "Starting scan...",
         startedAt: Date.now(),
+        endedAt: null,
       },
     });
     
@@ -126,6 +128,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
               ...state.progress,
               percent: 100,
               message: `Scan complete. Found ${state.results.length} subdomains.`,
+              endedAt: Date.now(),
             },
           }));
         },
@@ -136,6 +139,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
             progress: {
               ...state.progress,
               message: `Error: ${error.message}`,
+              endedAt: Date.now(),
             },
           }));
         },
@@ -172,6 +176,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
         ...get().progress,
         percent: 100,
         message: "Scan stopped by user",
+        endedAt: Date.now(),
       },
     });
   },

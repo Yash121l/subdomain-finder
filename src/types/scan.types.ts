@@ -19,4 +19,5 @@ export type ScanProgress = {
   currentSource: string;
   message: string;
   startedAt: number | null;
+  endedAt: number | null;
 };

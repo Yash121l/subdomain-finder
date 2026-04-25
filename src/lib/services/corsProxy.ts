@@ -4,6 +4,7 @@
 
 const CORS_PROXIES = [
   'https://api.allorigins.win/raw?url=',
+  'https://api.codetabs.com/v1/proxy?quest=',
   'https://corsproxy.io/?',
 ];
 

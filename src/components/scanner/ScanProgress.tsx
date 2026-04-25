@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useScanStore } from "../../store/scanStore";
 import { Card } from "../ui/card";
 import { Progress } from "../ui/progress";
@@ -21,8 +22,21 @@ export function ScanProgress() {
     );
   }
 
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (status === "running") {
+      setNow(Date.now());
+      interval = setInterval(() => setNow(Date.now()), 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [status]);
+
   const elapsed = progress.startedAt 
-    ? Math.floor((Date.now() - progress.startedAt) / 1000) 
+    ? Math.floor(((progress.endedAt || now) - progress.startedAt) / 1000) 
     : 0;
 
   const statusColors = {
