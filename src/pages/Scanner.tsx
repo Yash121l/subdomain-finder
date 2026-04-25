@@ -9,6 +9,7 @@ import { ExportButtons } from "../components/results/ExportButtons";
 import { useScanStore } from "../store/scanStore";
 import { Radar, Download } from "lucide-react";
 import { SEOContent } from "../components/seo/SEOContent";
+import { Sidebar } from "../components/layout/Sidebar";
 
 function normalizeDomain(raw: string): string {
   const withoutProtocol = raw.trim().replace(/^https?:\/\//i, "");
@@ -44,26 +45,28 @@ export function Scanner() {
 
   return (
     <section aria-label="Subdomain Scanner" className="space-y-4 sm:space-y-6 animate-fade-in">
-      {/* Top Section - Form + Progress */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_1.2fr]">
+      {/* Top Section - Form + Progress + Sidebar */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
         {/* Scan Form Card */}
-        <Card className="p-4 sm:p-6">
-          <div className="flex items-center gap-3 mb-4 sm:mb-6">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <Radar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+        <div className="lg:col-span-4 xl:col-span-5">
+          <Card className="p-4 sm:p-6 h-full">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                <Radar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">New Scan</h2>
+                <p className="text-xs text-[var(--color-text-muted)] hidden sm:block">
+                  Discover subdomains using OSINT sources
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-semibold text-[var(--color-text)]">New Scan</h2>
-              <p className="text-xs text-[var(--color-text-muted)] hidden sm:block">
-                Discover subdomains using OSINT sources
-              </p>
-            </div>
-          </div>
-          <ScanForm initialDomain={domain} onScanStart={updateUrl} />
-        </Card>
+            <ScanForm initialDomain={domain} onScanStart={updateUrl} />
+          </Card>
+        </div>
 
         {/* Progress & Controls */}
-        <div className="space-y-3 sm:space-y-4">
+        <div className="lg:col-span-5 xl:col-span-4 space-y-3 sm:space-y-4">
           <ScanProgress />
           <Card hover={false} className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -74,6 +77,11 @@ export function Scanner() {
               <ScanControls />
             </div>
           </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="lg:col-span-3">
+          <Sidebar />
         </div>
       </div>
 
