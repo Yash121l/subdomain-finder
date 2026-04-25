@@ -4,6 +4,8 @@ import { Footer } from "./components/layout/Footer";
 import { Sidebar } from "./components/layout/Sidebar";
 import { Scanner } from "./pages/Scanner";
 import { Settings } from "./pages/Settings";
+import { WhatIsSubdomainLookup } from "./pages/WhatIsSubdomainLookup";
+import { SubdomainEnumerationGuide } from "./pages/SubdomainEnumerationGuide";
 import { useTheme } from "./hooks/useTheme";
 
 const routes = [
@@ -11,6 +13,8 @@ const routes = [
   { path: "/scan", name: "Scanner", component: Scanner, showSidebar: true },
   { path: "/scan/:domain", name: "Scanner", component: Scanner, showSidebar: true },
   { path: "/settings", name: "Settings", component: Settings, showSidebar: false },
+  { path: "/what-is-subdomain-lookup", name: "What is Subdomain Lookup", component: WhatIsSubdomainLookup, showSidebar: false },
+  { path: "/subdomain-enumeration-guide", name: "Subdomain Enumeration Guide", component: SubdomainEnumerationGuide, showSidebar: false },
 ];
 
 function getActiveFromPath(pathname: string): string {

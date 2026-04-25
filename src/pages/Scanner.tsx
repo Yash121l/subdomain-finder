@@ -8,6 +8,7 @@ import { ResultsTable } from "../components/results/ResultsTable";
 import { ExportButtons } from "../components/results/ExportButtons";
 import { useScanStore } from "../store/scanStore";
 import { Radar, Download } from "lucide-react";
+import { SEOContent } from "../components/seo/SEOContent";
 
 function normalizeDomain(raw: string): string {
   const withoutProtocol = raw.trim().replace(/^https?:\/\//i, "");
@@ -92,6 +93,8 @@ export function Scanner() {
         </div>
         <ResultsTable />
       </Card>
+
+      <SEOContent />
     </section>
   );
 }
