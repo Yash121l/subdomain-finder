@@ -1,0 +1,16 @@
+# Subdomain Finder
+
+Subdomain Finder is a free, open-source Open Source Intelligence (OSINT) tool designed to help security researchers, bug bounty hunters, and developers discover subdomains for any given target domain.
+
+## Features
+- Fast, parallel subdomain enumeration.
+- Aggregates results from multiple OSINT sources, including crt.sh (Certificate Transparency logs) and HackerTarget (DNS search).
+- Client-side execution: The tool runs entirely in your web browser. No account registration or API keys are required.
+- DNS Resolution: Optionally resolve the IP addresses for discovered subdomains directly from the browser using DNS-over-HTTPS.
+- Export Data: Download the discovered subdomains and IP addresses in JSON, CSV, or TXT formats.
+
+## Usage
+To use the tool, visit https://subdomainfinder.yashlunawat.com/scan and enter a target domain name (e.g., example.com). Select the sources you wish to query, and configure the concurrency and timeout settings. The tool will stream discoveries in real-time.
+
+## About the Author
+Created by Yash Lunawat. Open source code is available on GitHub: https://github.com/Yash121l/subdomain-finder

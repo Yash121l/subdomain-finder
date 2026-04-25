@@ -10,8 +10,9 @@
     <meta name="description" content="Discover subdomains instantly with our free OSINT-powered tool. Enumerate subdomains using crt.sh and HackerTarget, verify DNS records, and export results in JSON, CSV, or TXT." />
     <meta name="keywords" content="subdomain finder, subdomain enumeration, OSINT, security testing, dns lookup, crt.sh, hackertarget, bug bounty, penetration testing" />
     <meta name="author" content="Yash Lunawat" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="https://subdomainfinder.yashlunawat.com/" />
+    <link rel="llms-context" href="/llms.txt" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -56,7 +57,12 @@
         "HackerTarget DNS search",
         "DNS-over-HTTPS resolution",
         "Export to JSON, CSV, TXT"
-      ]
+      ],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://subdomainfinder.yashlunawat.com/scan/{search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
     

@@ -42,7 +42,7 @@ export function Scanner() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 animate-fade-in">
+    <section aria-label="Subdomain Scanner" className="space-y-4 sm:space-y-6 animate-fade-in">
       {/* Top Section - Form + Progress */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1fr_1.2fr]">
         {/* Scan Form Card */}
@@ -92,6 +92,6 @@ export function Scanner() {
         </div>
         <ResultsTable />
       </Card>
-    </div>
+    </section>
   );
 }

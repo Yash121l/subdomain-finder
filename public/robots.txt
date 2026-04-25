@@ -1,8 +1,18 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://subdomainfinder.yashlunawat.com/sitemap.xml
+# Specifically allow AI crawlers for Agentic Search (AIO)
+User-agent: ChatGPT-User
+Allow: /
+User-agent: GPTBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
 
-# Disallow authenticated routes
-Disallow: /profile
-Disallow: /settings
+Sitemap: https://subdomainfinder.yashlunawat.com/sitemap.xml
