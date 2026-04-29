@@ -1,3 +1,2 @@
-export * from './corsProxy';
 export * from './dnsService';
-export * from './subdomainService';
+export * from './scanApiService';

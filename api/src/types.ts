@@ -1,9 +1,41 @@
-import { D1Database } from "@cloudflare/workers-types";
+import { D1Database, KVNamespace, Queue } from "@cloudflare/workers-types";
 
 export type Env = {
   DB: D1Database;
   JWT_SECRET: string;
+  SCAN_CACHE: KVNamespace;
+  REFRESH_QUEUE?: Queue<RefreshJobPayload>;
 };
+
+export type KVCacheEntry = {
+  results: CachedSubdomainResult[];
+  fetchedAt: number;
+  sources: string[];
+  totalFound: number;
+  totalResolved: number;
+};
+
+export type CachedSubdomainResult = {
+  subdomain: string;
+  ipAddresses: string[];
+  source: string;
+  resolved: boolean;
+  discoveredAt: number;
+};
+
+export type RefreshJobPayload = {
+  domain: string;
+  sources: string[];
+  triggeredAt: number;
+};
+
+export type CacheStatus = "HIT" | "STALE" | "MISS";
+
+export type SSEEvent =
+  | { event: "subdomain"; subdomain: string; ipAddresses: string[]; source: string; resolved: boolean; discoveredAt: number }
+  | { event: "progress"; message: string; percent: number }
+  | { event: "complete"; total: number; resolved: number; cachedAt: number }
+  | { event: "error"; message: string };
 
 export type User = {
   id: string;
