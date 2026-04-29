@@ -6,6 +6,7 @@ import { ScanControls } from "../components/scanner/ScanControls";
 import { ScanProgress } from "../components/scanner/ScanProgress";
 import { ResultsTable } from "../components/results/ResultsTable";
 import { ExportButtons } from "../components/results/ExportButtons";
+import { StaleCacheBanner } from "../components/scanner/StaleCacheBanner";
 import { useScanStore } from "../store/scanStore";
 import { Radar, Download } from "lucide-react";
 import { SEOContent } from "../components/seo/SEOContent";
@@ -99,6 +100,7 @@ export function Scanner() {
           </div>
           <ExportButtons />
         </div>
+        <StaleCacheBanner />
         <ResultsTable />
       </Card>
 

@@ -1,6 +1,7 @@
 name = "subdomain-finder-api"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-11-01"
+account_id = "de5fb1f3ce863c8844fccecac45b0819"
 
 [dev]
 port = 8787
@@ -11,4 +12,9 @@ JWT_SECRET = "WK49Y0ovjf2ydl5XQL1fa8rzakNbTswjjxGUsrxFsClRhf1RnTuFxzJGqQb7980tyl
 [[d1_databases]]
 binding = "DB"
 database_name = "subdomain-finder-db"
-database_id = "local"
+database_id = "7f42109b-ba57-4f72-82fd-1db8d1e7a7d4"
+
+[[kv_namespaces]]
+binding = "SCAN_CACHE"
+id = "190a6587d9be4a8595da9fc71099d769"
+preview_id = "a0bce315b1be4265ba646f5643c6c1d3"
