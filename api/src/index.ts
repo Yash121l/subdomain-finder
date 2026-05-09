@@ -54,9 +54,13 @@ async function queueHandler(
   env: Env
 ): Promise<void> {
   for (const message of batch.messages) {
-    const { domain, sources } = message.body;
+    const { domain, sources, resolveDns, concurrency, timeout } = message.body;
     try {
-      await performFullScan(domain, sources as OsintSource[], env);
+      await performFullScan(domain, sources as OsintSource[], env, undefined, {
+        resolveDns,
+        concurrency,
+        timeoutMs: timeout ? timeout * 1000 : undefined,
+      });
       message.ack();
     } catch (err) {
       console.error(`Queue scan failed for ${domain}:`, err);

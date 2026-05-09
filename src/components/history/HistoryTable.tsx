@@ -26,7 +26,7 @@ export function HistoryTable() {
             <td className="px-4 py-3 text-xs text-slate-300">{entry.results}</td>
             <td className="px-4 py-3 text-xs text-slate-300">{entry.duration}</td>
             <td className="px-4 py-3">
-              <Badge variant={entry.status === "completed" ? "success" : "danger"}>{entry.status}</Badge>
+              <Badge variant={entry.status === "completed" ? "success" : "error"}>{entry.status}</Badge>
             </td>
             <td className="px-4 py-3">
               <div className="flex flex-wrap gap-2">

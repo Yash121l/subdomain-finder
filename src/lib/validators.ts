@@ -21,7 +21,7 @@ export const scanSchema = z.object({
         .min(3, "Domain is required")
         .regex(/^(?!-)(?:[a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,}$/, "Enter a valid domain")
     ),
-  sources: z.array(z.enum(["crtsh", "hackertarget", "all"])).min(1, "Select at least one source"),
+  sources: z.array(z.enum(["crtsh", "certspotter", "hackertarget", "wayback", "urlscan", "all"])).min(1, "Select at least one source"),
   resolveDns: z.boolean(),
   concurrency: z.number().min(1).max(50),
   timeout: z.number().min(1).max(30)

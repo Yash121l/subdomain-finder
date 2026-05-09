@@ -1,4 +1,4 @@
-import { Download, Copy, Check, FileJson, FileSpreadsheet, FileText } from "lucide-react";
+import { Copy, Check, FileJson, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "../ui/button";
 import { useScanStore } from "../../store/scanStore";
 import { useState } from "react";

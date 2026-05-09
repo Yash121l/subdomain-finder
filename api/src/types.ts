@@ -11,6 +11,7 @@ export type KVCacheEntry = {
   results: CachedSubdomainResult[];
   fetchedAt: number;
   sources: string[];
+  sourceStatuses?: SourceRunResult[];
   totalFound: number;
   totalResolved: number;
 };
@@ -27,15 +28,29 @@ export type RefreshJobPayload = {
   domain: string;
   sources: string[];
   triggeredAt: number;
+  resolveDns?: boolean;
+  concurrency?: number;
+  timeout?: number;
 };
 
 export type CacheStatus = "HIT" | "STALE" | "MISS";
 
+export type SourceRunStatus = "running" | "succeeded" | "failed" | "rate_limited";
+
+export type SourceRunResult = {
+  source: string;
+  status: Exclude<SourceRunStatus, "running">;
+  count: number;
+  message: string;
+  durationMs: number;
+};
+
 export type SSEEvent =
   | { event: "subdomain"; subdomain: string; ipAddresses: string[]; source: string; resolved: boolean; discoveredAt: number }
   | { event: "progress"; message: string; percent: number }
-  | { event: "complete"; total: number; resolved: number; cachedAt: number }
-  | { event: "error"; message: string };
+  | { event: "source"; source: string; status: SourceRunStatus; message: string; count?: number }
+  | { event: "complete"; total: number; resolved: number; cachedAt: number; status: "success" | "partial"; sources: SourceRunResult[] }
+  | { event: "error"; message: string; fatal?: boolean };
 
 export type User = {
   id: string;

@@ -7,6 +7,9 @@ import { Globe, SearchX } from "lucide-react";
 
 export function ResultsTable() {
   const results = useScanStore((state) => state.results);
+  const status = useScanStore((state) => state.status);
+  const outcome = useScanStore((state) => state.outcome);
+  const lastError = useScanStore((state) => state.lastError);
   const [searchTerm, setSearchTerm] = useState("");
   const [resolvedFilter, setResolvedFilter] = useState<"all" | "resolved" | "unresolved">("all");
 
@@ -33,11 +36,23 @@ export function ResultsTable() {
   }, [results, searchTerm, resolvedFilter]);
 
   if (results.length === 0) {
+    const failed = status === "failed";
+    const completed = status === "completed";
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Globe className="h-16 w-16 text-[var(--color-text-muted)] mb-4" />
-        <p className="text-[var(--color-text-secondary)] text-lg">No subdomains discovered yet</p>
-        <p className="text-[var(--color-text-muted)] text-sm mt-1">Start a scan to find subdomains</p>
+        <p className="text-[var(--color-text-secondary)] text-lg">
+          {failed ? "Scan could not complete" : completed ? "No subdomains found" : "No subdomains discovered yet"}
+        </p>
+        <p className="text-[var(--color-text-muted)] text-sm mt-1">
+          {failed
+            ? lastError ?? "All selected sources failed or were rate limited."
+            : outcome === "partial"
+              ? "Some sources failed, and the remaining sources found no subdomains."
+              : completed
+                ? "The selected sources completed without returning subdomains."
+                : "Start a scan to find subdomains"}
+        </p>
       </div>
     );
   }

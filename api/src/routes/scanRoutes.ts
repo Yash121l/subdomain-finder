@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import type { Env } from "../types";
 import { getCacheEntry, getRefreshLock, setCacheEntry, setRefreshLock } from "../services/cacheService";
-import { type OsintSource } from "../services/osintService";
-import { performFullScan } from "../services/scanRunner";
+import { DEFAULT_OSINT_SOURCES, type OsintSource } from "../services/osintService";
+import { performFullScan, ScanSourcesFailedError } from "../services/scanRunner";
 
 export const scanRoutes = new Hono<{ Bindings: Env }>();
 
@@ -13,8 +13,14 @@ function normalizeDomain(raw: string): string {
 function parseSourcesParam(param: string): OsintSource[] {
   if (!param || param === "all") return [];
   return param.split(",").filter((s): s is OsintSource =>
-    s === "crtsh" || s === "hackertarget"
+    s === "crtsh" || s === "certspotter" || s === "hackertarget" || s === "wayback" || s === "urlscan"
   );
+}
+
+function parseBoundedInt(value: string | undefined, fallback: number, min: number, max: number): number {
+  const parsed = Number.parseInt(value ?? "", 10);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(Math.max(parsed, min), max);
 }
 
 // GET /api/scan/:domain — instant cache response
@@ -65,13 +71,9 @@ scanRoutes.get("/:domain/stream", async (c) => {
   const domain = normalizeDomain(c.req.param("domain"));
   const sourcesParam = c.req.query("sources") ?? "all";
   const resolveDns = c.req.query("resolveDns") !== "false";
+  const concurrency = parseBoundedInt(c.req.query("concurrency"), 10, 1, 50);
+  const timeoutSeconds = parseBoundedInt(c.req.query("timeout"), 20, 5, 30);
   const sources = parseSourcesParam(sourcesParam);
-
-  // If already fresh in cache, redirect to the GET endpoint
-  const { status } = await getCacheEntry(c.env.SCAN_CACHE, domain);
-  if (status === "HIT") {
-    return c.redirect(`/api/scan/${domain}`);
-  }
 
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
@@ -83,9 +85,14 @@ scanRoutes.get("/:domain/stream", async (c) => {
   };
 
   // Run the scan in background; stream closes when it's done
-  performFullScan(domain, sources, c.env, send)
+  performFullScan(domain, sources, c.env, send, {
+    resolveDns,
+    concurrency,
+    timeoutMs: timeoutSeconds * 1000,
+  })
     .catch((err) => {
-      send({ event: "error", message: err instanceof Error ? err.message : "Scan failed" });
+      const message = err instanceof Error ? err.message : "Scan failed";
+      send({ event: "error", message, fatal: err instanceof ScanSourcesFailedError });
     })
     .finally(() => {
       writer.close().catch(() => {});
@@ -105,11 +112,27 @@ scanRoutes.get("/:domain/stream", async (c) => {
 // POST /api/scan/:domain/refresh — manual user-triggered refresh
 scanRoutes.post("/:domain/refresh", async (c) => {
   const domain = normalizeDomain(c.req.param("domain"));
-  const body = await c.req.json().catch(() => ({})) as { sources?: string[] };
-  const sources = Array.isArray(body.sources) ? body.sources : ["crtsh", "hackertarget"];
+  const body = await c.req.json().catch(() => ({})) as {
+    sources?: string[];
+    resolveDns?: boolean;
+    concurrency?: number;
+    timeout?: number;
+  };
+  const sources = Array.isArray(body.sources)
+    ? parseSourcesParam(body.sources.join(","))
+    : DEFAULT_OSINT_SOURCES;
+  const concurrency = Math.min(Math.max(Number(body.concurrency) || 10, 1), 50);
+  const timeout = Math.min(Math.max(Number(body.timeout) || 20, 5), 30);
 
   if (c.env.REFRESH_QUEUE) {
-    await c.env.REFRESH_QUEUE.send({ domain, sources, triggeredAt: Date.now() });
+    await c.env.REFRESH_QUEUE.send({
+      domain,
+      sources,
+      triggeredAt: Date.now(),
+      resolveDns: body.resolveDns !== false,
+      concurrency,
+      timeout,
+    });
     return c.json({ queued: true, domain });
   }
   // Queue not available — return 202 so the frontend knows to open SSE instead

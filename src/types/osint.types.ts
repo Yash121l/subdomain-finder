@@ -1,4 +1,4 @@
-export type OsintSource = 'crtsh' | 'hackertarget' | 'all';
+export type OsintSource = 'crtsh' | 'certspotter' | 'hackertarget' | 'wayback' | 'urlscan' | 'all';
 
 export type CrtshEntry = {
   issuer_ca_id: number;

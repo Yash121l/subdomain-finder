@@ -1,15 +1,17 @@
 import { Card } from "../ui/card";
 import { useScanStore } from "../../store/scanStore";
-import { Activity, Database, CheckCircle, Globe, Zap, BarChart } from "lucide-react";
+import { Activity, Globe, Zap, BarChart } from "lucide-react";
 
 const osintSources = [
   { name: "crt.sh", desc: "Certificate Transparency" },
+  { name: "Cert Spotter", desc: "CT fallback" },
   { name: "HackerTarget", desc: "DNS Search" },
+  { name: "Wayback", desc: "Archived URLs" },
 ];
 
 const tips = [
   "Certificate Transparency logs are a goldmine for finding subdomains. They contain all SSL certificates ever issued for a domain.",
-  "DNS brute-forcing can find subdomains not in CT logs, but may trigger rate limits.",
+  "Archived URLs often reveal forgotten subdomains that no longer appear in certificate logs.",
   "Wildcard certificates (*.domain.com) indicate the domain uses subdomain-based services.",
   "Check for development subdomains like dev., staging., test. for potential misconfigurations.",
 ];

@@ -1,6 +1,6 @@
 # Subdomain Finder
 
-A fast, production-ready subdomain enumeration tool powered by Cloudflare's edge network. Discover subdomains from OSINT sources (Certificate Transparency + HackerTarget DNS), resolve DNS records, and get results cached at the edge for instant repeat lookups.
+A fast, production-ready subdomain enumeration tool powered by Cloudflare's edge network. Discover subdomains from passive OSINT sources, resolve DNS records, and get results cached at the edge for instant repeat lookups.
 
 **Live:** [subdomainfinder.yashlunawat.com](https://subdomainfinder.yashlunawat.com)
 
@@ -16,8 +16,7 @@ Browser
   │     ├─ X-Cache: HIT   ──────────► Return results from KV immediately
   │     ├─ X-Cache: STALE ──────────► Return old results + show refresh banner
   │     └─ X-Cache: MISS  ──────────► Open SSE stream →
-  │                                        Worker queries crt.sh (parallel)
-  │                                        Worker queries HackerTarget (parallel)
+  │                                        Worker queries passive OSINT sources (parallel)
   │                                        Streams each subdomain as found
   │                                        Resolves DNS via 1.1.1.1 at CF edge
   │                                        Writes results to KV
@@ -67,7 +66,10 @@ Browser
 
 **OSINT Sources**
 - [crt.sh](https://crt.sh) — Certificate Transparency logs
+- [Cert Spotter](https://sslmate.com/help/reference/ct_search_api_v1) — CT fallback with conservative free-tier use
 - [HackerTarget](https://hackertarget.com) — DNS search API
+- [Wayback CDX](https://github.com/internetarchive/wayback/blob/master/wayback-cdx-server/README.md) — archived URL hostnames
+- [urlscan](https://urlscan.io/docs/api/) — optional enrichment source with small unauthenticated quotas
 
 ---
 
@@ -102,7 +104,7 @@ subdomain-finder/
         │   └── scanRoutes.ts     # GET /:domain, GET /:domain/stream, POST /:domain/refresh
         └── services/
             ├── cacheService.ts   # KV read/write, HIT/STALE/MISS logic
-            ├── osintService.ts   # crt.sh + HackerTarget (server-side, no CORS proxy)
+            ├── osintService.ts   # Passive source integrations (server-side, no CORS proxy)
             ├── dnsWorker.ts      # DNS resolution via 1.1.1.1 at CF edge
             └── scanRunner.ts     # Shared executor (SSE + Queue consumer)
 ```
@@ -129,10 +131,13 @@ The frontend reads `VITE_API_BASE_URL` from `.env`. Copy `.env.example`:
 
 ```bash
 cp .env.example .env
-# VITE_API_BASE_URL=http://localhost:8787
+# Local: VITE_API_BASE_URL=http://localhost:8787
+# Production: VITE_API_BASE_URL=https://subdomain-finder-api.yashlunawat-tech.workers.dev
 ```
 
 Local `wrangler dev` simulates KV and D1 in `.wrangler/state/` — no cloud resources needed for local development.
+
+> Production note: `subdomainfinder.yashlunawat.com/api/*` is not currently the canonical API path. Build the frontend with the Worker URL above unless Cloudflare Pages is configured to proxy `/api/*` to the Worker.
 
 ---
 
@@ -202,16 +207,17 @@ Returns cached scan results instantly.
 
 ### `GET /api/scan/:domain/stream`
 
-Server-Sent Events stream of a live scan. Redirects to `GET /api/scan/:domain` if a fresh cache entry already exists.
+Server-Sent Events stream of a live scan.
 
-**Query params:** `sources=crtsh,hackertarget` · `resolveDns=true|false`
+**Query params:** `sources=crtsh,certspotter,hackertarget,wayback,urlscan` · `resolveDns=true|false` · `concurrency=1..50` · `timeout=5..30`
 
 **SSE events:**
 ```
 data: {"event":"progress","message":"Querying crt.sh...","percent":10}
+data: {"event":"source","source":"crtsh","status":"running","message":"Querying crt.sh..."}
 data: {"event":"subdomain","subdomain":"api.example.com","ipAddresses":[],"source":"crtsh","resolved":false}
 data: {"event":"subdomain","subdomain":"api.example.com","ipAddresses":["1.2.3.4"],"source":"crtsh","resolved":true}
-data: {"event":"complete","total":42,"resolved":38,"cachedAt":1714000000000}
+data: {"event":"complete","total":42,"resolved":38,"cachedAt":1714000000000,"status":"partial","sources":[]}
 ```
 
 ### `POST /api/scan/:domain/refresh`
@@ -225,11 +231,22 @@ Manually triggers a fresh scan. Returns `202` when Queues are not configured (fr
 - **Instant repeat lookups** — KV cache means second visits to any domain are sub-100ms
 - **Live streaming** — results appear as each OSINT source responds, not after everything finishes
 - **DNS resolution at the edge** — resolved via `1.1.1.1` on Cloudflare's internal network
+- **Source-aware reliability** — upstream failures are shown as partial/failed scans and are not cached as empty success
 - **No CORS proxies** — all external API calls happen server-side in the Worker
 - **Stale-while-revalidate** — old results shown immediately with a banner showing cache age
 - **Pause / Resume / Stop** — AbortController on the SSE connection; Worker continues scanning and writes to KV
 - **Export** — JSON, CSV, plain-text, or copy to clipboard
 - **URL sharing** — `/scan/:domain` auto-starts a scan on load
+
+---
+
+## Promotion Strategy
+
+- Position the project as a fast passive subdomain discovery tool for bug bounty hunters, students, and developers who need exportable recon without signup.
+- Launch and cross-post on GitHub, X/Twitter, LinkedIn, Reddit communities such as r/bugbounty and r/cybersecurity, Indie Hackers, Hacker News “Show HN,” Product Hunt, and security Discord/Telegram groups.
+- Create focused SEO pages and examples for “subdomain finder,” “crt.sh alternative,” “passive subdomain enumeration,” “find subdomains online,” and “bug bounty recon checklist.”
+- Add trust signals: open-source implementation notes, source transparency, uptime/status notes, changelog entries, and the authorized-use disclaimer below.
+- Track impact with privacy-conscious analytics: scans started, successful scans, median time to first result, source failure rates, exports, shared scan URLs, and top landing queries.
 
 ---
 

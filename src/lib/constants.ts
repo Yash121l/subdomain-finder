@@ -1,9 +1,12 @@
 import type { OsintSource } from "../types/osint.types";
 
 export const SOURCE_OPTIONS: { label: string; value: OsintSource }[] = [
-  { label: "All Sources", value: "all" },
+  { label: "All Reliable Sources", value: "all" },
   { label: "crt.sh (Certificate Transparency)", value: "crtsh" },
+  { label: "Cert Spotter (CT Fallback)", value: "certspotter" },
   { label: "HackerTarget (DNS Search)", value: "hackertarget" },
+  { label: "Wayback Machine (Archived URLs)", value: "wayback" },
+  { label: "urlscan (Optional / Rate Limited)", value: "urlscan" },
 ];
 
 export const STATUS_OPTIONS = ["200", "301", "302", "403", "404", "500"];

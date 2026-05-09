@@ -94,7 +94,7 @@ export function ScanForm({ initialDomain, onScanStart }: Props) {
           ))}
         </Select>
         <p className="text-xs text-[var(--color-text-muted)]">
-          Uses Certificate Transparency logs and DNS search APIs
+          Uses CT logs, passive DNS, and archived URL sources
         </p>
       </div>
 

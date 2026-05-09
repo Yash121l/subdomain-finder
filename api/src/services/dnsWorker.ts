@@ -43,7 +43,8 @@ export async function resolveIPs(domain: string, timeoutMs = 5000): Promise<stri
 export async function batchResolve(
   domains: string[],
   concurrency = 10,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  timeoutMs = 5000
 ): Promise<Map<string, string[]>> {
   const result = new Map<string, string[]>();
   const queue = [...domains];
@@ -54,7 +55,7 @@ export async function batchResolve(
       const domain = queue.shift();
       if (!domain) break;
       try {
-        const ips = await resolveIPs(domain);
+        const ips = await resolveIPs(domain, timeoutMs);
         result.set(domain, ips);
       } catch {
         result.set(domain, []);

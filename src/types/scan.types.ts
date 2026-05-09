@@ -1,4 +1,13 @@
 export type ScanStatus = "idle" | "running" | "paused" | "completed" | "failed";
+export type ScanOutcome = "success" | "partial" | "failed";
+export type SourceRunStatus = "running" | "succeeded" | "failed" | "rate_limited";
+
+export type SourceProgress = {
+  source: string;
+  status: SourceRunStatus;
+  message: string;
+  count: number;
+};
 
 export type ScanResult = {
   id: string;

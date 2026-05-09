@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card } from "../ui/card";
-import { Shield, Zap, Search, Globe, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Shield, Zap, Search, Globe, CheckCircle2 } from "lucide-react";
 
 export function SEOContent() {
   return (
@@ -75,7 +75,7 @@ export function SEOContent() {
             Unlike aggressive active scanning tools like Amass or Subfinder, our online subdomain finder operates passively in your browser. This means you get blazingly fast results without installing anything on your local machine.
           </p>
           <p>
-            When you enter a domain, the tool performs concurrent API requests to multiple open-source intelligence databases. It pulls certificate transparency logs from <strong>crt.sh</strong> and passive DNS data from <strong>HackerTarget</strong>. The results are then deduplicated and cleaned up in real-time. Finally, it uses DNS-over-HTTPS (DoH) via Cloudflare and Google to actively resolve the discovered subdomains to their IP addresses, verifying that they are alive and accessible.
+            When you enter a domain, the tool performs concurrent API requests to multiple open-source intelligence databases. It pulls certificate transparency data from <strong>crt.sh</strong> and <strong>Cert Spotter</strong>, passive DNS data from <strong>HackerTarget</strong>, and archived hostnames from <strong>Wayback CDX</strong>. The results are then deduplicated and cleaned up in real-time. Finally, it can use DNS-over-HTTPS (DoH) to resolve the discovered subdomains to their IP addresses.
           </p>
           <p>
             Once the scan is complete, you can easily export the results in JSON, CSV, or TXT formats, making it simple to plug the data into your existing bug bounty pipelines or automated security workflows.

@@ -15,9 +15,8 @@ export function StaleCacheBanner() {
   const cachedAt = useScanStore((s) => s.cachedAt);
   const isRefreshing = useScanStore((s) => s.isRefreshing);
   const forceRefresh = useScanStore((s) => s.forceRefresh);
-  const status = useScanStore((s) => s.status);
 
-  if (cacheStatus !== "STALE" || status === "running") return null;
+  if (cacheStatus !== "STALE") return null;
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-4 py-3 text-sm">

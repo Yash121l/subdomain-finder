@@ -18,6 +18,12 @@ export function ResultRow({ result }: { result: ScanResult }) {
         return "info";
       case "hackertarget":
         return "warning";
+      case "certspotter":
+        return "success";
+      case "wayback":
+        return "default";
+      case "urlscan":
+        return "info";
       default:
         return "default";
     }
@@ -29,8 +35,14 @@ export function ResultRow({ result }: { result: ScanResult }) {
         return "CT";
       case "hackertarget":
         return "DNS";
+      case "certspotter":
+        return "Cert";
+      case "wayback":
+        return "Archive";
+      case "urlscan":
+        return "Scan";
       default:
-        return source;
+        return source.includes(",") ? "Multi" : source;
     }
   };
 

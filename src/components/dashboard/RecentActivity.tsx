@@ -18,7 +18,7 @@ export function RecentActivity() {
               <p className="text-sm text-slate-200">{item.domain}</p>
               <p className="text-xs text-slate-500">{item.time}</p>
             </div>
-            <Badge variant={item.status === "completed" ? "success" : item.status === "running" ? "warning" : "danger"}>
+            <Badge variant={item.status === "completed" ? "success" : item.status === "running" ? "warning" : "error"}>
               {item.status}
             </Badge>
           </div>

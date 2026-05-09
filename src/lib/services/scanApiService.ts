@@ -1,6 +1,15 @@
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://localhost:8787";
 
 export type CacheStatus = "HIT" | "STALE" | "MISS";
+export type SourceRunStatus = "running" | "succeeded" | "failed" | "rate_limited";
+
+export type SourceRunResult = {
+  source: string;
+  status: Exclude<SourceRunStatus, "running">;
+  count: number;
+  message: string;
+  durationMs: number;
+};
 
 export type CachedSubdomainResult = {
   subdomain: string;
@@ -21,8 +30,9 @@ export type ScanCacheResponse = {
 export type SSEEvent =
   | { event: "subdomain"; subdomain: string; ipAddresses: string[]; source: string; resolved: boolean; discoveredAt: number }
   | { event: "progress"; message: string; percent: number }
-  | { event: "complete"; total: number; resolved: number; cachedAt: number }
-  | { event: "error"; message: string };
+  | { event: "source"; source: string; status: SourceRunStatus; message: string; count?: number }
+  | { event: "complete"; total: number; resolved: number; cachedAt: number; status: "success" | "partial"; sources: SourceRunResult[] }
+  | { event: "error"; message: string; fatal?: boolean };
 
 export async function getScanResults(domain: string): Promise<{
   data: ScanCacheResponse;
@@ -46,12 +56,14 @@ export function openScanStream(
   options: {
     sources?: string[];
     resolveDns?: boolean;
+    concurrency?: number;
+    timeout?: number;
     signal?: AbortSignal;
     onEvent: (event: SSEEvent) => void;
     onError?: (err: Error) => void;
   }
 ): () => void {
-  const { sources, resolveDns = true, signal, onEvent, onError } = options;
+  const { sources, resolveDns = true, concurrency, timeout, signal, onEvent, onError } = options;
   const controller = new AbortController();
 
   // Combine external signal with internal one so caller can abort too
@@ -62,6 +74,8 @@ export function openScanStream(
   const params = new URLSearchParams();
   if (sources && sources.length > 0) params.set("sources", sources.join(","));
   params.set("resolveDns", String(resolveDns));
+  if (concurrency) params.set("concurrency", String(concurrency));
+  if (timeout) params.set("timeout", String(timeout));
 
   const url = `${API_BASE}/api/scan/${encodeURIComponent(domain)}/stream?${params}`;
 
@@ -110,10 +124,18 @@ export function openScanStream(
   return () => controller.abort();
 }
 
-export async function triggerRefresh(domain: string): Promise<void> {
+export async function triggerRefresh(
+  domain: string,
+  options?: { sources?: string[]; resolveDns?: boolean; concurrency?: number; timeout?: number }
+): Promise<void> {
   await fetch(`${API_BASE}/api/scan/${encodeURIComponent(domain)}/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sources: ["crtsh", "hackertarget"] }),
+    body: JSON.stringify({
+      sources: options?.sources ?? ["crtsh", "certspotter", "hackertarget", "wayback"],
+      resolveDns: options?.resolveDns,
+      concurrency: options?.concurrency,
+      timeout: options?.timeout,
+    }),
   });
 }

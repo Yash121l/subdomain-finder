@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ScanProgress, ScanResult, ScanStatus } from "../types/scan.types";
+import type { ScanOutcome, ScanProgress, ScanResult, ScanStatus, SourceProgress } from "../types/scan.types";
 import type { OsintSource } from "../types/osint.types";
 import {
   type CacheStatus,
@@ -29,12 +29,15 @@ export type ScanConfig = {
 
 type ScanState = {
   status: ScanStatus;
+  outcome: ScanOutcome | null;
   progress: ScanProgress;
   results: ScanResult[];
+  sourceStatuses: SourceProgress[];
   config: ScanConfig | null;
   cacheStatus: CacheStatus | null;
   cachedAt: number | null;
   isRefreshing: boolean;
+  lastError: string | null;
   abortController: AbortController | null;
   streamCleanup: (() => void) | null;
 
@@ -64,29 +67,51 @@ function mapCachedResult(r: CachedSubdomainResult): ScanResult {
   };
 }
 
+function selectedSources(config: ScanConfig): string[] {
+  return config.sources.includes("all" as OsintSource)
+    ? []
+    : config.sources;
+}
+
+function buildCompleteMessage(total: number, outcome: "success" | "partial"): string {
+  if (outcome === "partial") {
+    return total > 0
+      ? `Partial scan complete. Found ${total} subdomains.`
+      : "Partial scan complete, but no subdomains were found.";
+  }
+  return total > 0
+    ? `Scan complete. Found ${total} subdomains.`
+    : "Scan complete. No subdomains found by the selected sources.";
+}
+
 export const useScanStore = create<ScanState>((set, get) => ({
   status: "idle",
+  outcome: null,
   progress: initialProgress,
   results: [],
+  sourceStatuses: [],
   config: null,
   cacheStatus: null,
   cachedAt: null,
   isRefreshing: false,
+  lastError: null,
   abortController: null,
   streamCleanup: null,
 
   startScan: async (config: ScanConfig) => {
-    // Reset state for new scan
     set({
       config,
+      status: "idle",
+      outcome: null,
       results: [],
+      sourceStatuses: [],
       cacheStatus: null,
       cachedAt: null,
       isRefreshing: false,
+      lastError: null,
       progress: { ...initialProgress, message: "Checking cache...", startedAt: Date.now() },
     });
 
-    // Phase 1: instant cache check
     let cacheStatus: CacheStatus = "MISS";
     try {
       const { data, cacheStatus: cs } = await getScanResults(config.domain);
@@ -95,6 +120,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
       if (cs === "HIT") {
         set({
           status: "completed",
+          outcome: "success",
           cacheStatus: "HIT",
           cachedAt: data.meta.fetchedAt,
           results: data.results.map(mapCachedResult),
@@ -112,30 +138,30 @@ export const useScanStore = create<ScanState>((set, get) => ({
       }
 
       if (cs === "STALE") {
-        // Show stale results immediately; backend already enqueued a refresh
         set({
-          status: "completed",
+          status: "running",
+          outcome: null,
           cacheStatus: "STALE",
           cachedAt: data.meta.fetchedAt,
           isRefreshing: true,
           results: data.results.map(mapCachedResult),
           progress: {
             ...initialProgress,
-            percent: 100,
+            percent: 5,
             found: data.results.length,
             resolved: data.results.filter((r) => r.resolved).length,
-            message: `Showing cached results (refreshing in background)`,
+            message: "Showing cached results while refreshing...",
             startedAt: Date.now(),
-            endedAt: Date.now(),
+            endedAt: null,
           },
         });
+        openScanStreamAndMerge(config);
         return;
       }
     } catch {
-      // If API is unreachable, fall through to streaming with MISS
+      cacheStatus = "MISS";
     }
 
-    // Phase 2: MISS — open SSE and stream live results
     if (cacheStatus === "MISS") {
       openScanStreamAndMerge(config);
     }
@@ -150,7 +176,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
   resumeScan: () => {
     const { config, status } = get();
     if (config && status === "paused") {
-      set({ status: "running" });
+      set({ status: "running", lastError: null });
       openScanStreamAndMerge(config);
     }
   },
@@ -160,6 +186,8 @@ export const useScanStore = create<ScanState>((set, get) => ({
     streamCleanup?.();
     set({
       status: "completed",
+      outcome: get().results.length > 0 ? "partial" : "failed",
+      isRefreshing: false,
       streamCleanup: null,
       abortController: null,
       progress: {
@@ -176,12 +204,15 @@ export const useScanStore = create<ScanState>((set, get) => ({
     streamCleanup?.();
     set({
       status: "idle",
+      outcome: null,
       results: [],
+      sourceStatuses: [],
       progress: initialProgress,
       config: null,
       cacheStatus: null,
       cachedAt: null,
       isRefreshing: false,
+      lastError: null,
       abortController: null,
       streamCleanup: null,
     });
@@ -205,9 +236,13 @@ export const useScanStore = create<ScanState>((set, get) => ({
     const { config } = get();
     if (!config) return;
 
-    set({ isRefreshing: true });
-    triggerRefresh(config.domain).catch(() => {});
-    // Open SSE to watch the refresh complete
+    set({ isRefreshing: true, status: "running", outcome: null, lastError: null });
+    triggerRefresh(config.domain, {
+      sources: selectedSources(config),
+      resolveDns: config.resolveDns,
+      concurrency: config.concurrency,
+      timeout: config.timeout,
+    }).catch(() => {});
     openScanStreamAndMerge(config);
   },
 }));
@@ -218,38 +253,65 @@ function openScanStreamAndMerge(config: ScanConfig) {
   set((state) => ({
     status: "running",
     abortController,
+    streamCleanup: null,
+    lastError: null,
     progress: {
       ...state.progress,
-      message: "Starting live scan...",
+      message: state.cacheStatus === "STALE" ? "Refreshing cached results..." : "Starting live scan...",
       startedAt: state.progress.startedAt ?? Date.now(),
+      endedAt: null,
     },
   }));
 
   const cleanup = openScanStream(config.domain, {
-    sources: config.sources.includes("all" as OsintSource) ? [] : config.sources,
+    sources: selectedSources(config),
     resolveDns: config.resolveDns,
+    concurrency: config.concurrency,
+    timeout: config.timeout,
     signal: abortController.signal,
     onEvent: (ev) => {
+      if (ev.event === "source") {
+        useScanStore.setState((state) => {
+          const existing = state.sourceStatuses.filter((source) => source.source !== ev.source);
+          return {
+            sourceStatuses: [
+              ...existing,
+              {
+                source: ev.source,
+                status: ev.status,
+                message: ev.message,
+                count: ev.count ?? 0,
+              },
+            ],
+            progress: {
+              ...state.progress,
+              currentSource: ev.source,
+              message: ev.message,
+            },
+          };
+        });
+      }
+
       if (ev.event === "subdomain") {
         useScanStore.setState((state) => {
           const idx = state.results.findIndex(
             (r) => r.subdomain.toLowerCase() === ev.subdomain.toLowerCase()
           );
           if (idx >= 0) {
-            // Update existing entry with resolved IPs
             const updated = [...state.results];
             updated[idx] = {
               ...updated[idx],
               ipAddresses: ev.ipAddresses,
+              source: updated[idx].source === ev.source ? updated[idx].source : `${updated[idx].source}, ${ev.source}`,
               resolved: ev.resolved,
             };
             const resolvedCount = updated.filter((r) => r.resolved).length;
             return {
               results: updated,
-              progress: { ...state.progress, resolved: resolvedCount },
+              progress: { ...state.progress, found: updated.length, resolved: resolvedCount },
             };
           }
-          // New subdomain
+
           const newResult: ScanResult = {
             id: `result-${++resultIdCounter}`,
             subdomain: ev.subdomain,
@@ -281,16 +343,23 @@ function openScanStreamAndMerge(config: ScanConfig) {
       if (ev.event === "complete") {
         useScanStore.setState((state) => ({
           status: "completed",
+          outcome: ev.status,
           cacheStatus: "HIT",
           cachedAt: ev.cachedAt,
           isRefreshing: false,
           streamCleanup: null,
+          sourceStatuses: ev.sources.map((source) => ({
+            source: source.source,
+            status: source.status,
+            message: source.message,
+            count: source.count,
+          })),
           progress: {
             ...state.progress,
             percent: 100,
             found: ev.total,
             resolved: ev.resolved,
-            message: `Scan complete. Found ${ev.total} subdomains.`,
+            message: buildCompleteMessage(ev.total, ev.status),
             endedAt: Date.now(),
           },
         }));
@@ -298,15 +367,31 @@ function openScanStreamAndMerge(config: ScanConfig) {
 
       if (ev.event === "error") {
         useScanStore.setState((state) => ({
-          status: "failed",
-          progress: { ...state.progress, message: `Error: ${ev.message}`, endedAt: Date.now() },
+          status: ev.fatal || state.results.length === 0 ? "failed" : "completed",
+          outcome: ev.fatal || state.results.length === 0 ? "failed" : "partial",
+          isRefreshing: false,
+          streamCleanup: null,
+          lastError: ev.message,
+          progress: {
+            ...state.progress,
+            message: ev.fatal ? ev.message : `Warning: ${ev.message}`,
+            endedAt: Date.now(),
+          },
         }));
       }
     },
     onError: (err) => {
       useScanStore.setState((state) => ({
-        status: "failed",
-        progress: { ...state.progress, message: `Connection error: ${err.message}`, endedAt: Date.now() },
+        status: state.results.length > 0 ? "completed" : "failed",
+        outcome: state.results.length > 0 ? "partial" : "failed",
+        isRefreshing: false,
+        streamCleanup: null,
+        lastError: err.message,
+        progress: {
+          ...state.progress,
+          message: `Connection error: ${err.message}`,
+          endedAt: Date.now(),
+        },
       }));
     },
   });
@@ -314,7 +399,6 @@ function openScanStreamAndMerge(config: ScanConfig) {
   useScanStore.setState({ streamCleanup: cleanup });
 }
 
-// Expose set for the openScanStreamAndMerge closure
 function set(partial: Partial<ScanState> | ((s: ScanState) => Partial<ScanState>)) {
   useScanStore.setState(partial as Parameters<typeof useScanStore.setState>[0]);
 }
