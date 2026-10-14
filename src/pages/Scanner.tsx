@@ -35,7 +35,7 @@ export function Scanner() {
         resolveDns: true,
         concurrency: 10,
         timeout: 5,
-      });
+      }, "url");
     }
   }, [domain, status, startScan]);
 
