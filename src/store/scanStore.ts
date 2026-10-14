@@ -8,6 +8,7 @@ import {
   openScanStream,
   triggerRefresh,
 } from "../lib/services/scanApiService";
+import { track } from "../lib/analytics";
 
 const initialProgress: ScanProgress = {
   percent: 0,
@@ -27,6 +28,12 @@ export type ScanConfig = {
   timeout: number;
 };
 
+export type ScanTrigger = "form" | "url";
+
+function durationSince(startedAt: number | null): number | null {
+  return startedAt ? Date.now() - startedAt : null;
+}
+
 type ScanState = {
   status: ScanStatus;
   outcome: ScanOutcome | null;
@@ -41,7 +48,7 @@ type ScanState = {
   abortController: AbortController | null;
   streamCleanup: (() => void) | null;
 
-  startScan: (config: ScanConfig) => Promise<void>;
+  startScan: (config: ScanConfig, trigger?: ScanTrigger) => Promise<void>;
   pauseScan: () => void;
   resumeScan: () => void;
   stopScan: () => void;
@@ -98,7 +105,16 @@ export const useScanStore = create<ScanState>((set, get) => ({
   abortController: null,
   streamCleanup: null,
 
-  startScan: async (config: ScanConfig) => {
+  startScan: async (config: ScanConfig, trigger: ScanTrigger = "form") => {
+    track("scan_started", {
+      domain: config.domain,
+      sources: config.sources,
+      source_count: config.sources.length,
+      resolve_dns: config.resolveDns,
+      concurrency: config.concurrency,
+      timeout_s: config.timeout,
+      trigger,
+    });
     set({
       config,
       status: "idle",
@@ -118,6 +134,14 @@ export const useScanStore = create<ScanState>((set, get) => ({
       cacheStatus = cs;
 
       if (cs === "HIT") {
+        track("scan_completed", {
+          domain: config.domain,
+          outcome: "success",
+          total: data.results.length,
+          resolved: data.results.filter((r) => r.resolved).length,
+          cache_status: "HIT",
+          duration_ms: durationSince(get().progress.startedAt),
+        });
         set({
           status: "completed",
           outcome: "success",
@@ -182,7 +206,12 @@ export const useScanStore = create<ScanState>((set, get) => ({
   },
 
   stopScan: () => {
-    const { streamCleanup } = get();
+    const { streamCleanup, config, progress, results } = get();
+    track("scan_stopped", {
+      domain: config?.domain,
+      found: results.length,
+      duration_ms: durationSince(progress.startedAt),
+    });
     streamCleanup?.();
     set({
       status: "completed",
@@ -236,6 +265,7 @@ export const useScanStore = create<ScanState>((set, get) => ({
     const { config } = get();
     if (!config) return;
 
+    track("scan_refreshed", { domain: config.domain, cache_status: get().cacheStatus });
     set({ isRefreshing: true, status: "running", outcome: null, lastError: null });
     triggerRefresh(config.domain, {
       sources: selectedSources(config),
@@ -341,6 +371,17 @@ function openScanStreamAndMerge(config: ScanConfig) {
       }
 
       if (ev.event === "complete") {
+        const before = useScanStore.getState();
+        track("scan_completed", {
+          domain: config.domain,
+          outcome: ev.status,
+          total: ev.total,
+          resolved: ev.resolved,
+          cache_status: before.cacheStatus ?? "MISS",
+          sources_ok: ev.sources.filter((source) => source.status === "succeeded").length,
+          sources_failed: ev.sources.filter((source) => source.status !== "succeeded").length,
+          duration_ms: durationSince(before.progress.startedAt),
+        });
         useScanStore.setState((state) => ({
           status: "completed",
           outcome: ev.status,
@@ -366,6 +407,14 @@ function openScanStreamAndMerge(config: ScanConfig) {
       }
 
       if (ev.event === "error") {
+        const before = useScanStore.getState();
+        track("scan_failed", {
+          domain: config.domain,
+          error: ev.message,
+          fatal: Boolean(ev.fatal),
+          found: before.results.length,
+          duration_ms: durationSince(before.progress.startedAt),
+        });
         useScanStore.setState((state) => ({
           status: ev.fatal || state.results.length === 0 ? "failed" : "completed",
           outcome: ev.fatal || state.results.length === 0 ? "failed" : "partial",
@@ -381,6 +430,14 @@ function openScanStreamAndMerge(config: ScanConfig) {
       }
     },
     onError: (err) => {
+      const before = useScanStore.getState();
+      track("scan_failed", {
+        domain: config.domain,
+        error: err.message,
+        fatal: before.results.length === 0,
+        found: before.results.length,
+        duration_ms: durationSince(before.progress.startedAt),
+      });
       useScanStore.setState((state) => ({
         status: state.results.length > 0 ? "completed" : "failed",
         outcome: state.results.length > 0 ? "partial" : "failed",

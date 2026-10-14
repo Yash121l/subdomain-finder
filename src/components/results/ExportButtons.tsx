@@ -2,6 +2,7 @@ import { Copy, Check, FileJson, FileSpreadsheet, FileText } from "lucide-react";
 import { Button } from "../ui/button";
 import { useScanStore } from "../../store/scanStore";
 import { useState } from "react";
+import { track } from "../../lib/analytics";
 
 export function ExportButtons() {
   const results = useScanStore((state) => state.results);
@@ -29,6 +30,7 @@ export function ExportButtons() {
       resolved: r.resolved,
       discoveredAt: new Date(r.discoveredAt).toISOString(),
     }));
+    track("results_exported", { format: "json", count: results.length });
     downloadFile(JSON.stringify(data, null, 2), "subdomains.json", "application/json");
   };
 
@@ -47,16 +49,19 @@ export function ExportButtons() {
       ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
     ].join("\n");
     
+    track("results_exported", { format: "csv", count: results.length });
     downloadFile(csv, "subdomains.csv", "text/csv");
   };
 
   const exportTXT = () => {
     const txt = results.map((r) => r.subdomain).join("\n");
+    track("results_exported", { format: "txt", count: results.length });
     downloadFile(txt, "subdomains.txt", "text/plain");
   };
 
   const copyToClipboard = () => {
     const txt = results.map((r) => r.subdomain).join("\n");
+    track("results_exported", { format: "clipboard", count: results.length });
     navigator.clipboard.writeText(txt);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
